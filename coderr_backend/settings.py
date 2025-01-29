@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'coderr_app',
-    'user_auth_app'
+    'user_auth_app',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
