@@ -17,11 +17,12 @@ class OfferSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        details_data = validated_data.pop('details', [])  # Extract details
+        details_data = validated_data.pop('details', [])  # Extract details list
         offer = Offer.objects.create(**validated_data)  # Create Offer
 
+        # Create related Details entries
         for detail in details_data:
-            Details.objects.create(offer=offer, **detail)  # Create related Details
+            Details.objects.create(offer=offer, **detail)
 
         return offer
 
@@ -32,8 +33,6 @@ class OfferSerializer(serializers.ModelSerializer):
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
         instance.description = validated_data.get('description', instance.description)
-        instance.min_price = validated_data.get('min_price', instance.min_price)
-        instance.min_delivery_time = validated_data.get('min_delivery_time', instance.min_delivery_time)
         instance.save()
 
         if details_data is not None:
