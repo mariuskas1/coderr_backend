@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from user_auth_app.models import UserProfile
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -36,3 +40,29 @@ class RegistrationSerializer(serializers.Serializer):
             raise serializers.ValidationError({"repeated_password": "Die Passwörter stimmen nicht überein."})
         return data
        
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        username = data.get("username")
+        password = data.get("password")
+
+        if not username or not password:
+            raise serializers.ValidationError({"error": "Benutzername und Passwort sind erforderlich."})
+
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            raise serializers.ValidationError({"error": "Ungültige Anmeldeinformationen."})
+
+        # Get or create a token for the user
+        token, created = Token.objects.get_or_create(user=user)
+
+        return {
+            "token": token.key,
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email
+        }
