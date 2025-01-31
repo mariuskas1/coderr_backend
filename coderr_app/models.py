@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 # Offer, Order, Profiles (evtl auch in user_auth), Review
 
 
-
 class Offer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255, default="Untitled Offer")  
@@ -16,8 +15,8 @@ class Offer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Details(models.Model):
-    offer = models.ForeignKey(Offer, related_name='details', on_delete=models.CASCADE)
+class OfferDetails(models.Model):
+    offer = models.ForeignKey(Offer, related_name='offer_details', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, default="Untitled Detail")  
     revisions = models.IntegerField(default=0)
     delivery_time_in_days = models.IntegerField(null=True, blank=True, default=1)  

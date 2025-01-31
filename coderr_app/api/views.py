@@ -1,8 +1,8 @@
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
-from coderr_app.models import Offer, Details
-from .serializers import OfferSerializer, DetailsSerializer
+from coderr_app.models import Offer, OfferDetails
+from .serializers import OfferSerializer, OfferDetailsSerializer
 
 
 class OfferViewset(viewsets.ModelViewSet):
@@ -18,7 +18,7 @@ class OfferViewset(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
         
 
-class DetailsViewSet(viewsets.ModelViewSet):
-    queryset = Details.objects.all()
-    serializer_class = DetailsSerializer
+class OfferDetailsViewSet(viewsets.ModelViewSet):
+    queryset = OfferDetails.objects.all()
+    serializer_class = OfferDetailsSerializer
 

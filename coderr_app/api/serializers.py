@@ -1,18 +1,22 @@
 from rest_framework import serializers
-from coderr_app.models import Offer, Details
+from coderr_app.models import Offer, OfferDetails
 from django.contrib.auth.models import User
+from django.db.models import Min
 
 
 
-class DetailsSerializer(serializers.ModelSerializer):
+
+class OfferDetailsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Details
+        model = OfferDetails
         fields = '__all__'
 
 
 class OfferSerializer(serializers.ModelSerializer):
-    details = DetailsSerializer(many=True, required=False)  
+    details = OfferDetailsSerializer(source='offer_details', many=True, required=False)  
     user_details = serializers.SerializerMethodField()
+    min_price = serializers.SerializerMethodField()
+    min_delivery_time = serializers.SerializerMethodField()
 
     class Meta:
         model = Offer
@@ -24,13 +28,21 @@ class OfferSerializer(serializers.ModelSerializer):
             "last_name": obj.user.last_name,
             "username": obj.user.username
         }
+    
+    def get_min_price(self, obj):
+        min_price = obj.offer_details.aggregate(min_price=Min('price'))['min_price']
+        return float(min_price) if min_price is not None else 0.00
+
+    def get_min_delivery_time(self, obj):
+        min_time = obj.offer_details.aggregate(min_time=Min('delivery_time_in_days'))['min_time']
+        return min_time if min_time is not None else 0
 
     def create(self, validated_data):
         details_data = validated_data.pop('details', [])  
         offer = Offer.objects.create(**validated_data)
 
         for detail in details_data:
-            Details.objects.create(offer=offer, **detail)
+            OfferDetails.objects.create(offer=offer, **detail)
 
         return offer
 
@@ -45,6 +57,6 @@ class OfferSerializer(serializers.ModelSerializer):
         if details_data is not None:
             instance.details.all().delete()
             for detail_data in details_data:
-                Details.objects.create(offer=instance, **detail_data)
+                OfferDetails.objects.create(offer=instance, **detail_data)
 
         return instance
