@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = UserProfile
         fields = ['user', 'name']

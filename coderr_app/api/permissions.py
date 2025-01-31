@@ -1,18 +1,25 @@
 from rest_framework import permissions
 
 
-class IsOwnerOrAdmin(permissions.BasePermission):
+from rest_framework import permissions
+
+class IsBusinessOwnerOrAdmin(permissions.BasePermission):
     """
-    Only authenticated users who are the owner of the offer or an admin can edit/delete.
-    Only providers (e.g., authenticated users) can create offers.
+    Only business users can create offers.
+    Only the owner of the offer or an admin can edit/delete it.
     """
 
     def has_permission(self, request, view):
         """ Global permission check (applies to list & create). """
         if request.method == 'POST':
-            return request.user and request.user.is_authenticated  
-        
-        return True  
+            return (
+                request.user and 
+                request.user.is_authenticated and 
+                hasattr(request.user, 'profile') and 
+                request.user.profile.type == 'business'
+            )
+
+        return True 
 
     def has_object_permission(self, request, view, obj):
         """ Object-level permission check (applies to update/delete). """
@@ -20,3 +27,4 @@ class IsOwnerOrAdmin(permissions.BasePermission):
             return True  
         
         return obj.user == request.user or request.user.is_staff
+

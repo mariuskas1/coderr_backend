@@ -2,7 +2,7 @@ from rest_framework import generics
 from user_auth_app.models import UserProfile
 from .serializers import UserProfileSerializer, RegistrationSerializer
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -12,14 +12,38 @@ import string
 
 
 
-class UserProfileList(generics.ListCreateAPIView):
+class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Users can only view/update their own profile.
+        Admins can view/update any profile.
+        """
+        user = self.request.user
+        if user.is_staff:  # Admins can access all profiles
+            return UserProfile.objects.all()
+        return UserProfile.objects.filter(user=user)  # Regular users can only access their own profile
 
 
-class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = UserProfile.objects.all()
+
+class BusinessUserListView(generics.ListAPIView):
     serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]  
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(user_type='business')
+
+
+class CustomerUserListView(generics.ListAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]  
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(user_type='customer')
+
 
 
 class RegistrationView(APIView):

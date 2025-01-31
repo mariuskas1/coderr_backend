@@ -3,7 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from coderr_app.models import Offer, OfferDetails
 from .serializers import OfferSerializer, OfferDetailsSerializer
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsOwnerOrAdmin
+from .permissions import IsBusinessOwnerOrAdmin
 
 
 class OfferViewset(viewsets.ModelViewSet):
@@ -15,7 +15,7 @@ class OfferViewset(viewsets.ModelViewSet):
     search_fields = ['title', 'description']
     ordering_fields = ['min_price']
 
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated, IsBusinessOwnerOrAdmin]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
