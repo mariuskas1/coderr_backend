@@ -11,34 +11,28 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'name']
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
-    repeated_password = serializers.CharField(write_only=True)
+class RegistrationSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150, required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True, min_length=6)
+    repeated_password = serializers.CharField(write_only=True, required=True, min_length=6)
+    type = serializers.ChoiceField(choices=UserProfile.USER_TYPES, default='customer')  
 
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'repeated_password', 'first_name']
-        extra_kwargs = {
-            'password': {
-                'write_only': True
-            }
-        }
-    
+    def validate_username(self, value):
+        """ Ensure the username is unique """
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Dieser Benutzername ist bereits vergeben.")
+        return value
 
-    def save(self):
-       pw = self.validated_data['password']
-       repeated_pw = self.validated_data['repeated_password']
+    def validate_email(self, value):
+        """ Ensure the email is unique """
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Diese E-Mail-Adresse wird bereits verwendet.")
+        return value
 
-       if pw != repeated_pw:
-           raise serializers.ValidationError({'error': 'Passwords do not match.'})
-       
-       if User.objects.filter(email=self.validated_data['email']).exists():
-            raise serializers.ValidationError("A user with this email already exists.")
-       
-       account = User(
-           email=self.validated_data['email'], 
-           username=self.validated_data['username'],
-           first_name=self.validated_data['first_name'])
-       account.set_password(pw)
-       account.save()
-       return account
+    def validate(self, data):
+        """ Ensure passwords match """
+        if data['password'] != data['repeated_password']:
+            raise serializers.ValidationError({"repeated_password": "Die Passwörter stimmen nicht überein."})
+        return data
        

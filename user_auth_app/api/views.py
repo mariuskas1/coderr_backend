@@ -9,6 +9,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth.models import User
 import random
 import string
+from rest_framework import status
+
 
 
 
@@ -51,21 +53,29 @@ class RegistrationView(APIView):
 
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
-        data = {}
 
         if serializer.is_valid():
-            saved_account = serializer.save()
-            token, created = Token.objects.get_or_create(user=saved_account)
-            data= {
-                'token': token.key,
-                'username': saved_account.username,
-                'email': saved_account.email,
-                'name': saved_account.first_name
-            }
-        else:
-            data=serializer.errors
-        
-        return Response(data)
+            username = serializer.validated_data['username']
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
+            repeated_password = serializer.validated_data['repeated_password']
+            user_type = serializer.validated_data.get('type', 'customer')  
+
+            if password != repeated_password:
+                return Response({"repeated_password": ["Die Passwörter stimmen nicht überein."]}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = User.objects.create_user(username=username, email=email, password=password)
+            UserProfile.objects.create(user=user, email=email, user_type=user_type)
+            token, created = Token.objects.get_or_create(user=user)
+
+            return Response({
+                "token": token.key,
+                "user_id": user.id,
+                "username": user.username,
+                "email": user.email
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 

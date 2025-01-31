@@ -16,10 +16,10 @@ class UserProfile(models.Model):
     tel = models.CharField(max_length=20, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     working_hours = models.CharField(max_length=50, null=True, blank=True)
-    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='customer')  # Business or Customer
+    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='customer')  
 
-    email = models.EmailField(unique=True, null=True, blank=True)  # Allow null and blank to avoid migration issues
-    created_at = models.DateTimeField( default=timezone.now)  # Set default for migrations
+    email = models.EmailField(unique=True, null=True, blank=True)  
+    created_at = models.DateTimeField( default=timezone.now)  
 
     def __str__(self):
         return self.user.username
