@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-# Offer, Order, Profiles (evtl auch in user_auth), Review
+# Offer, Order, Reviews
 
 
 class Offer(models.Model):
