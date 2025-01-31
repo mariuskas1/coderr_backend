@@ -4,8 +4,7 @@ from coderr_app.models import Offer, OfferDetails
 from .serializers import OfferSerializer, OfferDetailsSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsBusinessOwnerOrAdmin
-from rest_framework.pagination import PageNumberPagination
-
+from .pagination import CustomPageNumberPagination  
 
 
 class OfferViewset(viewsets.ModelViewSet):
@@ -13,6 +12,7 @@ class OfferViewset(viewsets.ModelViewSet):
     serializer_class = OfferSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     permission_classes = [IsAuthenticated, IsBusinessOwnerOrAdmin]
+    pagination_class = CustomPageNumberPagination
 
     filterset_fields = {
         'user': ['exact'], 
