@@ -25,3 +25,18 @@ class OfferDetails(models.Model):
     offer_type = models.CharField(max_length=50, null=True, blank=True, default="basic")  
 
 
+class Order(models.Model):
+    customer_user = models.ForeignKey(User, related_name='orders_as_customer', on_delete=models.CASCADE)
+    business_user = models.ForeignKey(User, related_name='orders_as_business', on_delete=models.CASCADE)
+    offer_detail = models.ForeignKey('OfferDetails', on_delete=models.CASCADE)
+
+    title = models.CharField(max_length=255)
+    revisions = models.IntegerField()
+    delivery_time_in_days = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    features = models.JSONField(default=list)
+    offer_type = models.CharField(max_length=50)
+    status = models.CharField(max_length=20, default='in_progress')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
