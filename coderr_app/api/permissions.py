@@ -1,7 +1,6 @@
 from rest_framework import permissions
 
 
-from rest_framework import permissions
 
 class IsBusinessOwnerOrAdmin(permissions.BasePermission):
     """
@@ -28,3 +27,22 @@ class IsBusinessOwnerOrAdmin(permissions.BasePermission):
         
         return obj.user == request.user or request.user.is_staff
 
+
+class IsCustomerOrAdmin(permissions.BasePermission):
+    """
+    Only customers can access this resource.
+    Admin users (is_staff) also have full access.
+    """
+
+    def has_permission(self, request, view):
+        """ Global permission check (applies to list & create). """
+        return (
+            request.user and 
+            request.user.is_authenticated and 
+            hasattr(request.user, 'profile') and 
+            (request.user.profile.type == 'customer' or request.user.is_staff)
+        )
+
+    def has_object_permission(self, request, view, obj):
+        """ Object-level permission check (applies to update/delete). """
+        return self.has_permission(request, view)

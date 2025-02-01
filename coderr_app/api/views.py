@@ -2,9 +2,9 @@ from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from coderr_app.models import Offer, OfferDetails, Order
-from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerializer, CreateOrderSerializer
+from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsBusinessOwnerOrAdmin
+from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin
 from .pagination import CustomPageNumberPagination  
 
 
@@ -34,8 +34,7 @@ class OfferDetailsViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, IsCustomerOrAdmin]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
     def get_queryset(self):
@@ -45,6 +44,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         """Use different serializers for different actions."""
         if self.action == 'create':
             return CreateOrderSerializer
+        if self.action == 'partial_update':  
+            return UpdateOrderStatusSerializer
         return OrderSerializer
 
     def perform_create(self, serializer):
