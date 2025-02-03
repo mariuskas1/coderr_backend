@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import OfferViewset, OfferDetailsViewSet, OrderViewSet, OrderCountView, CompletedOrderCountView
+from .views import OfferViewset, OfferDetailsViewSet, OrderViewSet, OrderCountView, CompletedOrderCountView, ReviewViewSet
 from rest_framework import routers
 
 
@@ -7,6 +7,7 @@ router = routers.SimpleRouter()
 router.register(r'offers', OfferViewset)
 router.register(r'offerdetails', OfferDetailsViewSet)  
 router.register(r'orders', OrderViewSet)  
+router.register(r'reviews', ReviewViewSet)
 
 
 urlpatterns = [

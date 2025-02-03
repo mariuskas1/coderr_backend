@@ -1,8 +1,8 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from coderr_app.models import Offer, OfferDetails, Order
-from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer
+from coderr_app.models import Offer, OfferDetails, Order, Review
+from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer, ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin
 from .pagination import CustomPageNumberPagination  
@@ -72,3 +72,12 @@ class CompletedOrderCountView(APIView):
         business_user = get_object_or_404(User, id=business_user_id)
         completed_order_count = Order.objects.filter(business_user=business_user, status='completed').count()
         return Response({"completed_order_count": completed_order_count}, status=status.HTTP_200_OK)
+    
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['business_user', 'reviewer'] 
+    ordering_fields = ['rating', 'created_at'] 
