@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import OfferViewset, OfferDetailsViewSet, OrderViewSet, OrderCountView
+from .views import OfferViewset, OfferDetailsViewSet, OrderViewSet, OrderCountView, CompletedOrderCountView
 from rest_framework import routers
 
 
@@ -11,5 +11,6 @@ router.register(r'oders', OrderViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('order-count/<int:business_user_id>/', OrderCountView.as_view(), name='order-count')
+    path('order-count/<int:business_user_id>/', OrderCountView.as_view(), name='order-count'),
+    path('completed-order-count/<int:business_user_id>/', CompletedOrderCountView.as_view(), name='completed-order-count'),
 ]
