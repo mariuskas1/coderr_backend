@@ -6,7 +6,7 @@ from rest_framework import routers
 router = routers.SimpleRouter()
 router.register(r'offers', OfferViewset)
 router.register(r'offerdetails', OfferDetailsViewSet)  
-router.register(r'oders', OrderViewSet)  
+router.register(r'orders', OrderViewSet)  
 
 
 urlpatterns = [

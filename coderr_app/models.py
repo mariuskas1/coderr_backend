@@ -37,6 +37,17 @@ class Order(models.Model):
     features = models.JSONField(default=list)
     offer_type = models.CharField(max_length=50)
     status = models.CharField(max_length=20, default='in_progress')
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Review(models.Model):
+    business_user = models.ForeignKey(User, related_name='reviews_received', on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(User, related_name='reviews_given', on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    
+    
