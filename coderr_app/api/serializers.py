@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from coderr_app.models import Offer, OfferDetails, Order
+from coderr_app.models import Offer, OfferDetails, Order, Review
 from django.contrib.auth.models import User
 from django.db.models import Min
 
@@ -86,3 +86,9 @@ class UpdateOrderStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['status']
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
