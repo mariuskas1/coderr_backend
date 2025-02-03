@@ -6,6 +6,10 @@ from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerialize
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin
 from .pagination import CustomPageNumberPagination  
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+
 
 
 class OfferViewset(viewsets.ModelViewSet):
@@ -51,3 +55,12 @@ class OrderViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Automatically assign the authenticated user as the customer."""
         serializer.save(customer_user=self.request.user)
+
+
+
+class OrderCountView(APIView):
+    def get(self, request, business_user_id): 
+        business_user = get_object_or_404(User, id=business_user_id)
+        order_count = Order.objects.filter(business_user=business_user, status='in_progress').count()
+        return Response({"order_count": order_count}, status=status.HTTP_200_OK)
+    
