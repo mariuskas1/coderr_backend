@@ -1,10 +1,10 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, permissions
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from coderr_app.models import Offer, OfferDetails, Order, Review
 from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer, ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin
+from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin, IsCustomerUser, IsReviewerOrAdmin
 from .pagination import CustomPageNumberPagination  
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -81,3 +81,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['business_user', 'reviewer'] 
     ordering_fields = ['rating', 'created_at'] 
+
+    def get_permissions(self):
+        """Apply different permissions based on the action."""
+        if self.action in ['create']:
+            return [IsCustomerUser()]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            return [IsReviewerOrAdmin()]
+        return [permissions.IsAuthenticated()]  # Default: Any authenticated user can read reviews
+
+    def partial_update(self, request, *args, **kwargs):
+        """Restrict editable fields to only 'rating' and 'description'."""
+        allowed_fields = {'rating', 'description'}
+        request.data = {key: value for key, value in request.data.items() if key in allowed_fields}
+        return super().partial_update(request, *args, **kwargs)
