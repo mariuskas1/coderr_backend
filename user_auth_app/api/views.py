@@ -5,10 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth.models import User
-import random
-import string
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, NotFound
 
@@ -44,7 +41,7 @@ class BusinessUserListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]  
 
     def get_queryset(self):
-        return UserProfile.objects.filter(user_type='business')
+        return UserProfile.objects.filter(type='business')
 
 
 class CustomerUserListView(generics.ListAPIView):
@@ -52,7 +49,7 @@ class CustomerUserListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]  
 
     def get_queryset(self):
-        return UserProfile.objects.filter(user_type='customer')
+        return UserProfile.objects.filter(type='customer')
 
 
 
@@ -67,13 +64,13 @@ class RegistrationView(APIView):
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
             repeated_password = serializer.validated_data['repeated_password']
-            user_type = serializer.validated_data.get('user_type', 'customer')  
+            type = serializer.validated_data.get('type', 'customer')  
 
             if password != repeated_password:
                 return Response({"repeated_password": ["Die Passwörter stimmen nicht überein."]}, status=status.HTTP_400_BAD_REQUEST)
 
             user = User.objects.create_user(username=username, email=email, password=password)
-            UserProfile.objects.create(user=user, email=email, user_type=user_type, name=username)
+            UserProfile.objects.create(user=user, email=email, type=type, name=username)
             token, created = Token.objects.get_or_create(user=user)
 
             return Response({

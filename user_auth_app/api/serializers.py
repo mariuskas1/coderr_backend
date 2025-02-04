@@ -16,6 +16,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = '__all__'
 
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", {}) 
+       
+        user = instance.user
+        if "username" in user_data:
+            user.username = user_data["username"]
+        if "first_name" in user_data:
+            user.first_name = user_data["first_name"]
+        if "last_name" in user_data:
+            user.last_name = user_data["last_name"]
+        user.save()  
+
+        return super().update(instance, validated_data)
+
 
 class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, required=True)

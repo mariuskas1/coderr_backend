@@ -19,7 +19,7 @@ class OfferViewset(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    permission_classes = [IsAuthenticated, IsBusinessOwnerOrAdmin]
+    # permission_classes = [IsCustomerOrAdmin]
     pagination_class = CustomPageNumberPagination
 
     filterset_fields = {
@@ -42,7 +42,7 @@ class OfferDetailsViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    permission_classes = [IsAuthenticated, IsCustomerOrAdmin]
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
     def get_queryset(self):
@@ -81,7 +81,7 @@ class BaseInfoViewset(APIView):
         review_count = Review.objects.count()
         average_rating = Review.objects.aggregate(avg_rating=Avg('rating'))['avg_rating']
         average_rating = round(average_rating, 1) if average_rating is not None else 0.0
-        business_profile_count = UserProfile.objects.filter(user_type = 'business').count()
+        business_profile_count = UserProfile.objects.filter(type = 'business').count()
         offer_count = Offer.objects.count()
 
         return Response({
