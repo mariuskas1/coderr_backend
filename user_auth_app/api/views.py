@@ -19,7 +19,6 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-
     def get_object(self):
         """
         Retrieve the UserProfile where the associated user's ID matches the URL parameter.
@@ -100,18 +99,3 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
-class GuestLoginView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        random_username = "guest_" + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        
-        guest_user = User.objects.create_user(username=random_username)
-        
-        token, _ = Token.objects.get_or_create(user=guest_user)
-
-        return Response({
-            "token": token.key,
-            "username": guest_user.username,
-            "is_guest": True
-        })

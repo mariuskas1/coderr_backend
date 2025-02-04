@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegistrationView, LoginView, GuestLoginView, UserProfileDetailView, BusinessUserListView, CustomerUserListView
+from .views import RegistrationView, LoginView, UserProfileDetailView, BusinessUserListView, CustomerUserListView
 
 urlpatterns = [
     path('profile/<int:pk>/', UserProfileDetailView.as_view(), name='userprofile-detail'),

@@ -8,11 +8,13 @@ from rest_framework.authtoken.models import Token
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+    first_name = serializers.CharField(source="user.first_name", required=False, allow_blank=True)
+    last_name = serializers.CharField(source="user.last_name", required=False, allow_blank=True)
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'name']
+        fields = '__all__'
 
 
 class RegistrationSerializer(serializers.Serializer):
