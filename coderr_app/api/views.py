@@ -2,6 +2,7 @@ from rest_framework import viewsets, filters, status, permissions
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from coderr_app.models import Offer, OfferDetails, Order, Review
+from user_auth_app.models import UserProfile
 from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer, ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin, IsCustomerUser, IsReviewerOrAdmin
@@ -80,7 +81,7 @@ class BaseInfoViewset(APIView):
         review_count = Review.objects.count()
         average_rating = Review.objects.aggregate(avg_rating=Avg('rating'))['avg_rating']
         average_rating = round(average_rating, 1) if average_rating is not None else 0.0
-        business_profile_count = User.objects.filter(type = 'business').count()
+        business_profile_count = UserProfile.objects.filter(user_type = 'business').count()
         offer_count = Offer.objects.count()
 
         return Response({
@@ -88,7 +89,7 @@ class BaseInfoViewset(APIView):
             "average_rating": average_rating,
             "business_profile_count": business_profile_count,
             "offer_count": offer_count
-        })
+        }, status=status.HTTP_200_OK)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
