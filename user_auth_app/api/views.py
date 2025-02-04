@@ -2,7 +2,7 @@ from rest_framework import generics
 from user_auth_app.models import UserProfile
 from .serializers import UserProfileSerializer, RegistrationSerializer, LoginSerializer
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -10,23 +10,33 @@ from django.contrib.auth.models import User
 import random
 import string
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied, NotFound
+
 
 
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
-    queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_queryset(self):
+
+    def get_object(self):
         """
-        Users can only view/update their own profile.
-        Admins can view/update any profile.
+        Retrieve the UserProfile where the associated user's ID matches the URL parameter.
         """
-        user = self.request.user
-        if user.is_staff:  # Admins can access all profiles
-            return UserProfile.objects.all()
-        return UserProfile.objects.filter(user=user)  # Regular users can only access their own profile
+        user_id = self.kwargs["pk"]  
+        try:
+            obj = UserProfile.objects.get(user__id=user_id)  
+            return obj
+        except UserProfile.DoesNotExist:
+            raise NotFound(f"UserProfile with user_id={user_id} not found.")
+
+    def update(self, request, *args, **kwargs):
+        """ Users can only edit their own profile """
+        obj = self.get_object()
+        if not request.user.is_staff and obj.user != request.user:
+            raise PermissionDenied("You can only edit your own profile.")
+        return super().update(request, *args, **kwargs)
 
 
 
@@ -58,13 +68,13 @@ class RegistrationView(APIView):
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
             repeated_password = serializer.validated_data['repeated_password']
-            user_type = serializer.validated_data.get('type', 'customer')  
+            user_type = serializer.validated_data.get('user_type', 'customer')  
 
             if password != repeated_password:
                 return Response({"repeated_password": ["Die Passwörter stimmen nicht überein."]}, status=status.HTTP_400_BAD_REQUEST)
 
             user = User.objects.create_user(username=username, email=email, password=password)
-            UserProfile.objects.create(user=user, email=email, user_type=user_type)
+            UserProfile.objects.create(user=user, email=email, user_type=user_type, name=username)
             token, created = Token.objects.get_or_create(user=user)
 
             return Response({
