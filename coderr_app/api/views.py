@@ -9,6 +9,8 @@ from .pagination import CustomPageNumberPagination
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.db.models import Avg
+
 
 
 
@@ -59,7 +61,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 
-
 class OrderCountView(APIView):
     def get(self, request, business_user_id): 
         business_user = get_object_or_404(User, id=business_user_id)
@@ -73,6 +74,22 @@ class CompletedOrderCountView(APIView):
         completed_order_count = Order.objects.filter(business_user=business_user, status='completed').count()
         return Response({"completed_order_count": completed_order_count}, status=status.HTTP_200_OK)
     
+
+class BaseInfoViewset(APIView):
+    def get(self, request):
+        review_count = Review.objects.count()
+        average_rating = Review.objects.aggregate(avg_rating=Avg('rating'))['avg_rating']
+        average_rating = round(average_rating, 1) if average_rating is not None else 0.0
+        business_profile_count = User.objects.filter(type = 'business').count()
+        offer_count = Offer.objects.count()
+
+        return Response({
+            "review_count": review_count,
+            "average_rating": average_rating,
+            "business_profile_count": business_profile_count,
+            "offer_count": offer_count
+        })
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
@@ -95,3 +112,5 @@ class ReviewViewSet(viewsets.ModelViewSet):
         allowed_fields = {'rating', 'description'}
         request.data = {key: value for key, value in request.data.items() if key in allowed_fields}
         return super().partial_update(request, *args, **kwargs)
+    
+    
