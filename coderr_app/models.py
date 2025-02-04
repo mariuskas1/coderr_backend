@@ -2,9 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# Create your models here.
-
-# Offer, Order, Reviews
 
 
 class Offer(models.Model):
@@ -14,6 +11,10 @@ class Offer(models.Model):
     description = models.TextField(max_length=255, default="No description provided")  
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
 
 class OfferDetails(models.Model):
     offer = models.ForeignKey(Offer, related_name='offer_details', on_delete=models.CASCADE)

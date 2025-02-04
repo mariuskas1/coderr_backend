@@ -22,11 +22,24 @@ class OfferSerializer(serializers.ModelSerializer):
     user_details = serializers.SerializerMethodField()
     min_price = serializers.SerializerMethodField()
     min_delivery_time = serializers.SerializerMethodField()
+    image = serializers.FileField(required=False, allow_null=True)
 
     class Meta:
         model = Offer
         fields = '__all__'
+        extra_kwargs = {"user": {"read_only": True}}
 
+    def create(self, validated_data):
+        """Custom create method to handle nested offer details."""
+        details_data = validated_data.pop('offer_details', []) 
+        user = self.context["request"].user  
+        validated_data["user"] = user  
+        offer = Offer.objects.create(**validated_data)
+
+        for detail_data in details_data:
+            OfferDetails.objects.create(offer=offer, **detail_data)
+        return offer  
+    
     def get_user_details(self, obj):
         return {
             "first_name": obj.user.first_name,
