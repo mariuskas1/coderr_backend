@@ -36,6 +36,29 @@ class OfferSerializer(serializers.ModelSerializer):
             OfferDetails.objects.create(offer=offer, **detail_data)
         return offer  
     
+    def update(self, instance, validated_data):
+        """Custom update method to allow partial updates and handle nested OfferDetails."""
+
+        details_data = validated_data.pop('offer_details', None)  
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if details_data is not None:
+            existing_details = {detail.offer_type: detail for detail in instance.offer_details.all()}  
+
+            for detail_data in details_data:
+                offer_type = detail_data.get("offer_type")
+                if offer_type in existing_details:
+                    detail_instance = existing_details[offer_type]
+                    for attr, value in detail_data.items():
+                        setattr(detail_instance, attr, value)
+                    detail_instance.save()
+                else:
+                    OfferDetails.objects.create(offer=instance, **detail_data)  
+
+        return instance
+
     def get_user_details(self, obj):
         return {
             "first_name": obj.user.first_name,
