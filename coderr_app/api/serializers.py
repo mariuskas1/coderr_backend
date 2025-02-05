@@ -7,21 +7,17 @@ from django.db.models import Min
 
 
 class OfferDetailsSerializer(serializers.ModelSerializer):
-    url = serializers.SerializerMethodField()
-
     class Meta:
         model = OfferDetails
-        fields = ['id', 'url'] 
+        fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
 
-    def get_url(self, obj):
-        return f"/offerdetails/{obj.id}/"
     
 
 class OfferSerializer(serializers.ModelSerializer):
     details = OfferDetailsSerializer(source='offer_details', many=True, required=False)  
     user_details = serializers.SerializerMethodField()
-    min_price = serializers.FloatField()
-    min_delivery_time = serializers.IntegerField()
+    min_price = serializers.FloatField(read_only=True)
+    min_delivery_time = serializers.IntegerField(read_only=True)
     image = serializers.FileField(required=False, allow_null=True)
 
     class Meta:
