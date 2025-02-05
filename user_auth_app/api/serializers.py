@@ -89,3 +89,51 @@ class LoginSerializer(serializers.Serializer):
             "username": user.username,
             "email": user.email
         }
+    
+
+class BusinessUserListSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'file', 'location', 'tel', 'description', 'working_hours', 'type']
+
+    def get_user(self, obj):
+        """Returns nested user details as required in the response."""
+        return {
+            "pk": obj.user.pk,
+            "username": obj.user.username,
+            "first_name": obj.user.first_name,
+            "last_name": obj.user.last_name
+        }
+
+    def get_file(self, obj):
+        """Ensure file URL includes MEDIA_URL."""
+        if obj.file:
+            return f"{settings.MEDIA_URL}{obj.file}"  
+        return None  
+    
+    
+class CustomerUserListSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'file', 'location', 'tel', 'description', 'working_hours', 'type']
+
+    def get_user(self, obj):
+        """Returns nested user details."""
+        return {
+            "pk": obj.user.pk,
+            "username": obj.user.username,
+            "first_name": obj.user.first_name,
+            "last_name": obj.user.last_name
+        }
+
+    def get_file(self, obj):
+        """Ensure file URL includes MEDIA_URL."""
+        if obj.file:
+            return f"{settings.MEDIA_URL}{obj.file}"  
+        return None
