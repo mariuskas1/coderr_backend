@@ -11,7 +11,8 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Avg
-from django.db.models import Min
+from django.db.models import Min, Q
+
 
 
 
@@ -53,7 +54,9 @@ class OrderViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
     def get_queryset(self):
-        return Order.objects.filter(customer_user=self.request.user)
+        return Order.objects.filter(
+            Q(customer_user=self.request.user) | Q(business_user=self.request.user)  
+        )
     
     def get_serializer_class(self):
         """Use different serializers for different actions."""
