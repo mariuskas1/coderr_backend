@@ -20,8 +20,8 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
 class OfferSerializer(serializers.ModelSerializer):
     details = OfferDetailsSerializer(source='offer_details', many=True, required=False)  
     user_details = serializers.SerializerMethodField()
-    min_price = serializers.SerializerMethodField()
-    min_delivery_time = serializers.SerializerMethodField()
+    min_price = serializers.FloatField()
+    min_delivery_time = serializers.IntegerField()
     image = serializers.FileField(required=False, allow_null=True)
 
     class Meta:

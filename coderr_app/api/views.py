@@ -11,6 +11,8 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Avg
+from django.db.models import Min
+
 
 
 
@@ -30,6 +32,11 @@ class OfferViewset(viewsets.ModelViewSet):
     search_fields = ['title', 'description']
     ordering_fields = ['min_price']
 
+    def get_queryset(self):
+        return self.queryset.annotate(
+            min_price=Min('offer_details__price'), 
+            min_delivery_time=Min('offer_details__delivery_time_in_days')
+        )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
