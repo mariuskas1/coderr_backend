@@ -130,6 +130,8 @@ class UpdateOrderStatusSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.PrimaryKeyRelatedField(read_only=True)
+    
     class Meta:
         model = Review
         fields = '__all__'

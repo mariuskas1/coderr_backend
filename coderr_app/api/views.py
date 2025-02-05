@@ -105,23 +105,28 @@ class BaseInfoViewset(APIView):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['business_user', 'reviewer'] 
     ordering_fields = ['rating', 'created_at'] 
 
-    def get_permissions(self):
-        """Apply different permissions based on the action."""
-        if self.action in ['create']:
-            return [IsCustomerUser()]
-        elif self.action in ['update', 'partial_update', 'destroy']:
-            return [IsReviewerOrAdmin()]
-        return [permissions.IsAuthenticated()]  # Default: Any authenticated user can read reviews
+    # def get_permissions(self):
+    #     """Apply different permissions based on the action."""
+    #     if self.action in ['create']:
+    #         return [IsCustomerUser()]
+    #     elif self.action in ['update', 'partial_update', 'destroy']:
+    #         return [IsReviewerOrAdmin()]
+    #     return [permissions.IsAuthenticated()]  # Default: Any authenticated user can read reviews
 
     def partial_update(self, request, *args, **kwargs):
         """Restrict editable fields to only 'rating' and 'description'."""
         allowed_fields = {'rating', 'description'}
         request.data = {key: value for key, value in request.data.items() if key in allowed_fields}
         return super().partial_update(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        """Automatically assign the logged-in user as the reviewer."""
+        serializer.save(reviewer=self.request.user)
     
     
