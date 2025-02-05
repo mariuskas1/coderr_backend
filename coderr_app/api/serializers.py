@@ -20,7 +20,7 @@ class OfferSerializer(serializers.ModelSerializer):
     user_details = serializers.SerializerMethodField()
     min_price = serializers.FloatField(read_only=True)
     min_delivery_time = serializers.IntegerField(read_only=True)
-    image = serializers.SerializerMethodField()
+    image = serializers.FileField(required=False, allow_null=True)
 
     class Meta:
         model = Offer
@@ -79,7 +79,8 @@ class OfferSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         """Ensure image URL includes MEDIA_URL"""
         if obj.image:
-            return f"{settings.MEDIA_URL}{obj.image}"  
+             request = self.context.get('request')  
+             return request.build_absolute_uri(obj.image.url)  
         return None
     
 
