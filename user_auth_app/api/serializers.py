@@ -3,6 +3,7 @@ from user_auth_app.models import UserProfile
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from django.conf import settings
 
 
 
@@ -11,6 +12,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
     first_name = serializers.CharField(source="user.first_name", required=False, allow_blank=True)
     last_name = serializers.CharField(source="user.last_name", required=False, allow_blank=True)
+    file = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
@@ -29,6 +31,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         user.save()  
 
         return super().update(instance, validated_data)
+    
+    def get_file(self, obj):
+        if obj.file:
+            return  f"{settings.MEDIA_URL}{obj.file}"
+        return None
 
 
 class RegistrationSerializer(serializers.Serializer):

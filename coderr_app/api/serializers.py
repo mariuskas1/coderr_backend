@@ -2,6 +2,8 @@ from rest_framework import serializers
 from coderr_app.models import Offer, OfferDetails, Order, Review
 from django.contrib.auth.models import User
 from django.db.models import Min
+from django.conf import settings
+
 
 
 
@@ -18,7 +20,7 @@ class OfferSerializer(serializers.ModelSerializer):
     user_details = serializers.SerializerMethodField()
     min_price = serializers.FloatField(read_only=True)
     min_delivery_time = serializers.IntegerField(read_only=True)
-    image = serializers.FileField(required=False, allow_null=True)
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Offer
@@ -73,6 +75,12 @@ class OfferSerializer(serializers.ModelSerializer):
     def get_min_delivery_time(self, obj):
         min_time = obj.offer_details.aggregate(min_time=Min('delivery_time_in_days'))['min_time']
         return min_time if min_time is not None else 0
+    
+    def get_image(self, obj):
+        """Ensure image URL includes MEDIA_URL"""
+        if obj.image:
+            return f"{settings.MEDIA_URL}{obj.image}"  
+        return None
     
 
 class OrderSerializer(serializers.ModelSerializer):
