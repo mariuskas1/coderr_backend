@@ -11,12 +11,12 @@ class IsBusinessOwnerOrAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         """ Global permission check (applies to list & create). """
         if request.method == 'POST':
+            user_profile = getattr(request.user, 'profile', None)
             return (
-                request.user and 
-                request.user.is_authenticated and 
-                hasattr(request.user, 'profile') and 
-                request.user.profile.type == 'business'
-            )
+            request.user.is_authenticated and 
+            user_profile and 
+            user_profile.type == 'business'
+        )
 
         return True 
 

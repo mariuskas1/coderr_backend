@@ -16,13 +16,11 @@ from django.db.models import Min, Q
 
 
 
-
-
 class OfferViewset(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    # permission_classes = [IsCustomerOrAdmin]
+    permission_classes = [IsAuthenticated, IsBusinessOwnerOrAdmin]
     pagination_class = CustomPageNumberPagination
 
     filterset_fields = {
