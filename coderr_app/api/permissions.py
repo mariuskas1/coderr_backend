@@ -36,17 +36,18 @@ class IsCustomerOrAdmin(permissions.BasePermission):
 
     def has_permission(self, request, view):
         """ Global permission check (applies to list & create). """
+        user_profile = getattr(request.user, 'profile', None)
         return (
-            request.user and 
             request.user.is_authenticated and 
-            hasattr(request.user, 'profile') and 
-            (request.user.profile.type == 'customer' or request.user.is_staff)
+            user_profile and 
+            (user_profile.type == 'customer' or request.user.is_staff)
         )
 
     def has_object_permission(self, request, view, obj):
         """ Object-level permission check (applies to update/delete). """
-        return self.has_permission(request, view)
-
+        if request.method in permissions.SAFE_METHODS:
+            return True 
+        return obj.user == request.user or request.user.is_staff
 
 class IsReviewerOrAdmin(permissions.BasePermission):
     """
