@@ -32,10 +32,16 @@ class OfferViewset(viewsets.ModelViewSet):
     ordering_fields = ['min_price']
 
     def get_queryset(self):
-        return self.queryset.annotate(
+        queryset = self.queryset.annotate(
             min_price=Min('offer_details__price'), 
             min_delivery_time=Min('offer_details__delivery_time_in_days')
         )
+
+        creator_id = self.request.query_params.get('creator_id')
+        if creator_id:
+            queryset = queryset.filter(user_id=creator_id)
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
