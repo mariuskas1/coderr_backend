@@ -5,7 +5,7 @@ from coderr_app.models import Offer, OfferDetails, Order, Review
 from user_auth_app.models import UserProfile
 from .serializers import OfferSerializer, OfferDetailsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer, ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin, IsCustomerUser, IsReviewerOrAdmin
+from .permissions import IsBusinessOwnerOrAdmin, IsCustomerOrAdmin, IsReviewerOrAdmin
 from .pagination import CustomPageNumberPagination  
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -109,13 +109,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
     filterset_fields = ['business_user', 'reviewer'] 
     ordering_fields = ['rating', 'created_at'] 
 
-    # def get_permissions(self):
-    #     """Apply different permissions based on the action."""
-    #     if self.action in ['create']:
-    #         return [IsCustomerUser()]
-    #     elif self.action in ['update', 'partial_update', 'destroy']:
-    #         return [IsReviewerOrAdmin()]
-    #     return [permissions.IsAuthenticated()]  # Default: Any authenticated user can read reviews
+    def get_permissions(self):
+        """Apply different permissions based on the action."""
+        if self.action in ['create']:
+            return [IsCustomerOrAdmin()]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            return [IsReviewerOrAdmin()]
+        return [permissions.IsAuthenticated()]  
 
     def partial_update(self, request, *args, **kwargs):
         """Restrict editable fields to only 'rating' and 'description'."""

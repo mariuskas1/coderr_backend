@@ -55,23 +55,22 @@ class IsReviewerOrAdmin(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        # Allow GET requests for all authenticated users
         if request.method in permissions.SAFE_METHODS:
             return True
         
-        # Allow PATCH/DELETE only if the user is the reviewer or an admin
         return obj.reviewer == request.user or request.user.is_staff
     
     
-class IsCustomerUser(permissions.BasePermission):
-    """
-    Only users with a customer profile can create reviews.
-    """
 
-    def has_permission(self, request, view):
-        # Allow only authenticated users
-        if not request.user or not request.user.is_authenticated:
-            return False
+# class IsCustomerUser(permissions.BasePermission):
+#     """
+#     Only users with a customer profile can create reviews.
+#     """
 
-        # Ensure the user has a customer profile (assuming `profile_type` field)
-        return getattr(request.user, 'profile_type', None) == 'customer'
+#     def has_permission(self, request, view):
+#         # Allow only authenticated users
+#         if not request.user or not request.user.is_authenticated:
+#             return False
+
+#         # Ensure the user has a customer profile (assuming `profile_type` field)
+#         return getattr(request.user, 'profile_type', None) == 'customer'
