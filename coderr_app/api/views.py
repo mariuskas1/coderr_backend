@@ -126,5 +126,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Automatically assign the logged-in user as the reviewer."""
         serializer.save(reviewer=self.request.user)
+
+    def get_queryset(self):
+        """Allow filtering by business_user_id manually"""
+        queryset = super().get_queryset()
+        business_user_id = self.request.query_params.get('business_user_id')
+
+        if business_user_id:
+            queryset = queryset.filter(business_user_id=business_user_id)
+
+        return queryset
     
     
