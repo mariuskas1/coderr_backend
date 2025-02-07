@@ -83,8 +83,7 @@ The API will be available at http://127.0.0.1:8000/
 * PATCH /reviews/{id}/ - Update a specific review
 * DELETE /reviews/{id}/ - Delete a specific review
 
-### License
-This project is licensed under the MIT License.
+
 
 
 
