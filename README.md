@@ -22,7 +22,7 @@ Coderr is a Django REST Framework (DRF) application for freelance IT services. U
 ### Clone the Repository
 ```sh
 git clone https://github.com/mariuskas1/coderr_backend.git
-cd coderr
+cd coderr_backend
 ```
 ### Create a Virtual Environment
 ```sh
