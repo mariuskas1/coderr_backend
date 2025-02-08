@@ -3,6 +3,7 @@ from coderr_app.models import Offer, OfferDetails, Order, Review
 from django.contrib.auth.models import User
 from django.db.models import Min
 from django.conf import settings
+from django.urls import reverse
 
 
 
@@ -13,10 +14,22 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
         model = OfferDetails
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
 
+
+class OfferDetailsGETSerializer(serializers.ModelSerializer):
+    """Serializer for GET requests: returns only ID and URL."""
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OfferDetails
+        fields = ['id', 'url']
+
+    def get_url(self, obj):
+        url = reverse('offerdetails-detail', args=[obj.id])
+        return url.replace('/api', '')  
     
 
 class OfferSerializer(serializers.ModelSerializer):
-    details = OfferDetailsSerializer(source='offer_details', many=True, required=False)  
+    details = serializers.SerializerMethodField()
     user_details = serializers.SerializerMethodField()
     min_price = serializers.FloatField(read_only=True)
     min_delivery_time = serializers.IntegerField(read_only=True)
@@ -27,9 +40,10 @@ class OfferSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {"user": {"read_only": True}}
 
+
     def create(self, validated_data):
         """Custom create method to handle nested offer details."""
-        details_data = validated_data.pop('offer_details', []) 
+        details_data = self.initial_data.get('details', [])
         user = self.context["request"].user  
         validated_data["user"] = user  
         offer = Offer.objects.create(**validated_data)
@@ -60,6 +74,14 @@ class OfferSerializer(serializers.ModelSerializer):
                     OfferDetails.objects.create(offer=instance, **detail_data)  
 
         return instance
+    
+    def get_details(self, obj):
+        """Return different structure for GET vs POST"""
+        request = self.context.get("request")
+        
+        if request and request.method == "GET":
+            return OfferDetailsGETSerializer(obj.offer_details.all(), many=True, context=self.context).data
+        return OfferDetailsSerializer(obj.offer_details.all(), many=True).data
 
     def get_user_details(self, obj):
         return {
