@@ -73,12 +73,12 @@ class LoginSerializer(serializers.Serializer):
         password = data.get("password")
 
         if not username or not password:
-            raise serializers.ValidationError({"error": "Benutzername und Passwort sind erforderlich."})
+            raise serializers.ValidationError({"detail": ["Benutzername und Passwort sind erforderlich."]})
 
         user = authenticate(username=username, password=password)
 
         if user is None:
-            raise serializers.ValidationError({"error": "Ungültige Anmeldeinformationen."})
+            raise serializers.ValidationError({"detail": ["Ungültige Anmeldeinformationen."]})
 
         # Get or create a token for the user
         token, created = Token.objects.get_or_create(user=user)

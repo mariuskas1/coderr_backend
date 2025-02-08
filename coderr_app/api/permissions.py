@@ -61,16 +61,3 @@ class IsReviewerOrAdmin(permissions.BasePermission):
         return obj.reviewer == request.user or request.user.is_staff
     
     
-
-# class IsCustomerUser(permissions.BasePermission):
-#     """
-#     Only users with a customer profile can create reviews.
-#     """
-
-#     def has_permission(self, request, view):
-#         # Allow only authenticated users
-#         if not request.user or not request.user.is_authenticated:
-#             return False
-
-#         # Ensure the user has a customer profile (assuming `profile_type` field)
-#         return getattr(request.user, 'profile_type', None) == 'customer'

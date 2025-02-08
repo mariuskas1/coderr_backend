@@ -28,8 +28,6 @@ config/settings/*.pyc
 # VS Code settings
 .vscode/
 
-# Compiled C extensions
-*.so
 
 # Distribution / packaging
 build/
@@ -37,16 +35,10 @@ dist/
 *.egg-info/
 pip-wheel-metadata/
 
-# Migrations cache (optional, but usually safe to ignore the auto-generated ones)
+# Migrations cache 
 **/migrations/*.pyc
 **/migrations/__pycache__/
 
-# Jupyter Notebook files (if used)
-.ipynb_checkpoints/
-
-# Docker-related files
-*.pid
-docker-compose.override.yml
 
 # MyPy type checking cache
 .mypy_cache/
