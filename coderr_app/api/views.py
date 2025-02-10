@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Avg
 from django.db.models import Min, Q
+from rest_framework.exceptions import PermissionDenied
 
 
 
@@ -62,6 +63,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             Q(customer_user=self.request.user) | Q(business_user=self.request.user)  
         )
     
+    def get_permissions(self):
+        if self.action in ['create']:
+            return [IsCustomerOrAdmin()]
+        return [permissions.IsAuthenticated()]  
+    
     def get_serializer_class(self):
         """Use different serializers for different actions."""
         if self.action == 'create':
@@ -69,10 +75,19 @@ class OrderViewSet(viewsets.ModelViewSet):
         if self.action == 'partial_update':  
             return UpdateOrderStatusSerializer
         return OrderSerializer
+    
+    def get_serializer(self, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        return super().get_serializer(*args, **kwargs)
+
 
     def perform_create(self, serializer):
-        """Automatically assign the authenticated user as the customer."""
-        serializer.save(customer_user=self.request.user)
+        """ Ensure only customers can create orders and assign the customer user """
+        user_profile = getattr(self.request.user, 'profile', None)
+        if not user_profile or user_profile.type != 'customer':
+            raise PermissionDenied("Only customers can create orders.")
+        
+        serializer.save()
 
 
 

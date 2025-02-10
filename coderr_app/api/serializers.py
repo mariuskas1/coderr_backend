@@ -145,6 +145,11 @@ class CreateOrderSerializer(serializers.Serializer):
         )
         return order
     
+    def to_representation(self, instance):
+        """Ensure the full order details are returned in the response."""
+        return OrderSerializer(instance).data 
+    
+    
 class UpdateOrderStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
