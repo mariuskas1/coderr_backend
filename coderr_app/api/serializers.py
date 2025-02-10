@@ -45,7 +45,7 @@ class OfferSerializer(serializers.ModelSerializer):
         """Custom create method to handle nested offer details."""
         details_data = self.initial_data.get('details', [])
         user = self.context["request"].user  
-        validated_data["user"] = user  
+        validated_data["user"] = user 
         offer = Offer.objects.create(**validated_data)
 
         for detail_data in details_data:

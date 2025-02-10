@@ -80,7 +80,6 @@ class LoginSerializer(serializers.Serializer):
         if user is None:
             raise serializers.ValidationError({"detail": ["Ungültige Anmeldeinformationen."]})
 
-        # Get or create a token for the user
         token, created = Token.objects.get_or_create(user=user)
 
         return {
@@ -118,10 +117,11 @@ class BusinessUserListSerializer(serializers.ModelSerializer):
 class CustomerUserListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     file = serializers.SerializerMethodField()
+    uploaded_at = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'file', 'location', 'tel', 'description', 'working_hours', 'type']
+        fields = ['user', 'file', 'location', 'tel', 'description', 'uploaded_at', 'type']
 
     def get_user(self, obj):
         """Returns nested user details."""
@@ -137,3 +137,6 @@ class CustomerUserListSerializer(serializers.ModelSerializer):
         if obj.file:
             return f"{settings.MEDIA_URL}{obj.file}"  
         return None
+    
+    def get_uploaded_at(self,obj):
+        return obj.created_at
