@@ -141,7 +141,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         """Restrict editable fields to only 'rating' and 'description'."""
         allowed_fields = {'rating', 'description'}
-        request.data = {key: value for key, value in request.data.items() if key in allowed_fields}
+        mutable_data = request.data.copy()
+        request._full_data = {key: value for key, value in mutable_data.items() if key in allowed_fields}
         return super().partial_update(request, *args, **kwargs)
     
     def perform_create(self, serializer):
