@@ -76,12 +76,14 @@ class OfferSerializer(serializers.ModelSerializer):
         return instance
     
     def get_details(self, obj):
-        """Return different structure for GET vs POST"""
+        """Return different detail structures for list vs single offer requests."""
         request = self.context.get("request")
         
-        if request and request.method == "GET":
-            return OfferDetailsGETSerializer(obj.offer_details.all(), many=True, context=self.context).data
-        return OfferDetailsSerializer(obj.offer_details.all(), many=True).data
+        # Handle single offer GET /offers/{id}/ or POST /offers/
+        if request and (request.parser_context.get("kwargs", {}).get("pk") or request.method == "POST"):  
+            return OfferDetailsSerializer(obj.offer_details.all(), many=True).data  
+
+        return OfferDetailsGETSerializer(obj.offer_details.all(), many=True).data
 
     def get_user_details(self, obj):
         return {
