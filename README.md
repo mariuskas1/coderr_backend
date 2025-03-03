@@ -13,7 +13,7 @@ Coderr is a Django REST Framework (DRF) application for freelance IT services. U
 - **CORS Headers**: 4.6.0
 - **SQLParse**: 0.5.3
 - **ASGIRef**: 3.8.1
-- **Database**: SQLite or PostgreSQL (depending on deployment)
+- **Database**: SQLite 
 
 ---
 
