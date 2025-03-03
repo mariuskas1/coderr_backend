@@ -31,6 +31,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'marius-kasparek.developerakademie.org',
+    'http://127.0.0.1:5500',
+    'coderr.marius-kasparek.de',
+    'marius-kasparek.de',
 ]
 
 
@@ -47,7 +50,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'coderr_app',
     'user_auth_app',
-    'django_filters'
+    'django_filters',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -65,11 +69,17 @@ MIDDLEWARE = [
 CSRF_TRUSTED_ORIGINS = [
   'http://127.0.0.1:5500',
   'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://coderr.marius-kasparek.de',
+  'http://marius-kasparek.de',
 ]
 
 CORS_ALLOWED_ORIGINS = [
   'http://127.0.0.1:5500',
   'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://coderr.marius-kasparek.de',
+  'http://marius-kasparek.de',
 ]
 
 
